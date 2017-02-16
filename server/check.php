@@ -6,7 +6,7 @@ if ($id = _($_REQUEST, 'id')) {
     echo json_encode(['status' => 1, 'data' => []]);
 } else {
     $data = $_REQUEST;
-    $data['id'] = 666;
+    $data['id'] = time();
     $data['status'] = 'processing';
     $data['chunks'] = [];
     echo json_encode(['status' => 1, 'data' => $data]);

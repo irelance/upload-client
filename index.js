@@ -39,13 +39,13 @@
                 hash: '3374d0055e6c4cd087f597a661d3151d',
                 size: 10240,
                 chunk_size: 1024,
-                chunk_number: 10,
-                chunks: []
+                chunk_number: 4,
+                chunks: [0, 1, 3]
             }
         ],
         check: {url: 'server/check.php'},
-        upload: {url: 'http://', chunkSize: 2097152},
-        merge: {url: 'http://'},
+        upload: {url: 'server/upload.php', chunkSize: 3000/*2097152*/, workers: 4, retries: 20},
+        merge: {url: 'server/merge.php'},
         hash: {
             defaults: "md5", chunkSize: 2097152,
             adapters: {
