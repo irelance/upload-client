@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 
 $id = _($_POST, 'id');
 $name = _($_POST, 'name');
-$chunkNumber = _($_POST, 'chunk_number');
+$chunkNumber = _($_POST, 'current_chunk_number');
 $start = _($_POST, 'start');
 $end = _($_POST, 'end');
 $data = _($_POST, 'data');

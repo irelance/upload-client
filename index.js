@@ -6,8 +6,14 @@
         target: '#client',
         title: 'test',
         lang: 'zh_cn',
-        buttons: '',
         display: [
+            {
+                header: 'ID',
+                render: function (item) {
+                    return item.id
+                },
+                sort: 1
+            },
             {
                 header: '名称',
                 render: function (item) {
@@ -27,8 +33,8 @@
             }
         ],
         modal: [
-            {id: 'name', label: '名称', sort: 1},
-            {uploader: true, label: '上传文件', sort: 2}
+            {id: 'name', label: '名称', sort: 3},
+            {uploader: true, label: '上传文件', sort: 20}
         ],
         data: [
             {
@@ -43,15 +49,15 @@
                 chunks: [0, 1, 3]
             }
         ],
-        check: {url: 'server/check.php'},
-        upload: {url: 'server/upload.php', chunkSize: 3000/*2097152*/, workers: 4, retries: 20},
-        merge: {url: 'server/merge.php'},
-        hash: {
-            defaults: "md5", chunkSize: 2097152,
-            adapters: {
-                md5: {className: "SparkMD5", method: {reset: "reset", append: "appendBinary", final: "end"}},
-                sha1: {className: "Rusha", method: {reset: "resetState", append: "append", final: "end"}}
-            }
-        }
+        check: {url: 'server/check.php', method: 'post', hidden: {}},
+        upload: {
+            url: 'server/upload.php',
+            method: 'post',
+            hidden: {},
+            chunkSize: 3000/*2097152*/,
+            workers: 4,
+            retries: 20
+        },
+        merge: {url: 'server/merge.php', method: 'post', hidden: {}}
     });
 })();

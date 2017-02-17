@@ -22,17 +22,19 @@ UploadClient.modal = {
                 inputs.each(function (i, v) {
                     data[v.name] = v.value;
                 });
-                data = $.extend({}, data, self.creator.data);
+                data = $.extend(UploadClient.options.check.hidden, data, self.creator.data);
                 if (!data.hash) {
                     self.creator.renderMessage(UploadClient.lang[UploadClient.options.lang]['fileStart'], 'error');
                     return false;
                 }
                 $.ajax({
+                    type: UploadClient.options.check.method,
                     url: UploadClient.options.check.url,
                     data: data,
                     success: function (result) {
                         if (result.status) {
                             var item = new UploadClient.Item();
+                            self.creator.file.off('change');
                             item.file = self.creator.file;
                             item.init(result.data);
                             item.render();

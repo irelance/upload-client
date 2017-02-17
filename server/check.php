@@ -2,10 +2,13 @@
 require __DIR__ . '/functions.php';
 header('Content-Type: application/json');
 
+$data = $_REQUEST;
 if ($id = _($_REQUEST, 'id')) {
-    echo json_encode(['status' => 1, 'data' => []]);
+    $data['id'] = time();
+    $data['status'] = 'processing';
+    $data['chunks'] = [];
+    echo json_encode(['status' => 1, 'data' => $data]);
 } else {
-    $data = $_REQUEST;
     $data['id'] = time();
     $data['status'] = 'processing';
     $data['chunks'] = [];

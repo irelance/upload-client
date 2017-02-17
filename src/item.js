@@ -13,6 +13,7 @@ UploadClient.Item = function () {
         upload: $('<button class="upload-client-button-upload process">' + UploadClient.lang[UploadClient.options.lang].upload + '</button>'),
         pause: $('<button class="upload-client-button-pause">' + UploadClient.lang[UploadClient.options.lang].pause + '</button>'),
         merge: $('<button class="upload-client-button-merge process">' + UploadClient.lang[UploadClient.options.lang].merge + '</button>'),
+        refresh: $('<button class="upload-client-button-refresh">' + UploadClient.lang[UploadClient.options.lang].refresh + '</button>')
     };
     this.data = {};
     this.isValid = false;
@@ -21,7 +22,7 @@ UploadClient.Item = function () {
         var self = this;
         self.hash = new UploadClient.HashAdapter(UploadClient.options.hash.adapters[UploadClient.options.hash.defaults]);
         if (typeof item == 'object') {
-            var includes = ['id', 'status', 'hash', 'size', 'chunk_size', 'chunk_number', 'chunks'];
+            var includes = ['id', 'status', 'hash', 'size', 'chunk_size', 'chunk_number'];
             self.isValid = true;
             includes.forEach(function (v) {
                 if (typeof item[v] == 'string' && item[v].match(/^[0-9]+$/)) {
@@ -35,61 +36,49 @@ UploadClient.Item = function () {
         if (self.isValid) {
             self.data = item;
             self.data.chunks = ArrayDifferenceSet(ArrayRange(0, self.data.chunk_number), self.data.chunks);
-            self.uploader
-                .on('click', '.upload-client-button-upload', function (e) {
-                    if (!self.canUpload) {
-                        self.onFileStart(true);
-                        return false;
-                    }
-                    self.onUpload();
-                })
-                .on('click', '.upload-client-button-pause', function (e) {
-                    self.onPause();
-                })
-                .on('click', '.upload-client-button-merge', function (e) {
-                    self.handleMerge();
-                })
-                .on('click', '.message', function (e) {
-                    self.file.trigger('click');
-                });
-            self.file
-                .on('change', function (e) {
-                    self.onFileStart();
-                    var file = this.files[0];
-                    if (file == undefined) {
-                        return false;
-                    }
-                    self.hash.reset();
-                    var fileReader = new FileReader(),
-                        chunkSize = UploadClient.options.hash.chunkSize,
-                        chunks = Math.ceil(file.size / chunkSize),
-                        currentChunk = 0;
-                    fileReader.onload = function (e) {
-                        self.hash.append(e.target.result);
-                        currentChunk++;
-                        if (currentChunk < chunks) {
-                            loadNext();
-                        } else {
-                            var hash = self.hash.final();
-                            if (self.data.hash != hash) {
-                                self.renderMessage(UploadClient.lang[UploadClient.options.lang]['hashFail'], 'error');
-                                return false;
-                            }
-                            self.onHashSuccess();
-                            return true;
+            if (!item.chunks) {
+                self.handleCheck();
+            }
+            self.file.on('change', function (e) {
+                self.onFileStart();
+                var file = this.files[0];
+                if (file == undefined) {
+                    return false;
+                }
+                self.hash.reset();
+                var fileReader = new FileReader(),
+                    chunkSize = UploadClient.options.hash.chunkSize,
+                    chunks = Math.ceil(file.size / chunkSize),
+                    currentChunk = 0;
+                fileReader.onload = function (e) {
+                    self.hash.append(e.target.result);
+                    currentChunk++;
+                    if (currentChunk < chunks) {
+                        loadNext();
+                    } else {
+                        var hash = self.hash.final();
+                        if (self.data.hash != hash) {
+                            self.renderMessage(UploadClient.lang[UploadClient.options.lang]['hashFail'], 'error');
+                            return false;
                         }
-                    };
-                    function loadNext() {
-                        self.renderMessage(UploadClient.lang[UploadClient.options.lang]['hashProcess'] + Math.ceil(100 * currentChunk / chunks) + '%', 'process');
-                        var start = currentChunk * chunkSize, end = start + chunkSize >= file.size ? file.size : start + chunkSize;
-                        fileReader.readAsBinaryString(file.slice(start, end));
+                        self.onHashSuccess();
+                        return true;
                     }
+                };
+                function loadNext() {
+                    self.renderMessage(UploadClient.lang[UploadClient.options.lang]['hashProcess'] + Math.ceil(100 * currentChunk / chunks) + '%', 'process');
+                    var start = currentChunk * chunkSize, end = start + chunkSize >= file.size ? file.size : start + chunkSize;
+                    fileReader.readAsBinaryString(file.slice(start, end));
+                }
 
-                    loadNext();
-                });
+                loadNext();
+            });
         }
     };
     this.render = function () {
+        this.target.html('');
+        this.uploader.html('');
+        this.unbind();
         if (this.isValid) {
             UploadClient.options.display.forEach(function (v) {
                 var td = $('<td></td>');
@@ -105,9 +94,44 @@ UploadClient.Item = function () {
             this.renderButtons();
             this.onFileStart();
             this.uploader.prepend(this.message);
+            this.bind();
         }
     };
+    this.unbind = function () {
+        // buttons
+        this.buttons.upload.off('click');
+        this.buttons.pause.off('click');
+        this.buttons.merge.off('click');
+        this.buttons.refresh.off('click');
+        // message
+        this.message.off('click');
+    };
+    this.bind = function () {
+        var self = this;
+        // buttons
+        self.buttons.upload.on('click', function (e) {
+            if (!self.canUpload) {
+                self.onFileStart(true);
+                return false;
+            }
+            self.onUpload();
+        });
+        self.buttons.pause.on('click', function (e) {
+            self.onPause();
+        });
+        self.buttons.merge.on('click', function (e) {
+            self.handleMerge();
+        });
+        self.buttons.refresh.on('click', function (e) {
+            self.handleCheck();
+        });
+        // message
+        self.message.on('click', function (e) {
+            self.file.trigger('click');
+        });
+    };
     this.destory = function () {
+        this.unbind();
         this.target.remove();
     };
     this.renderMessage = function (value, className) {
@@ -131,6 +155,7 @@ UploadClient.Item = function () {
                 this.uploader.append(v);
             }.bind(this));
         }
+        this.buttons.refresh.show();
         this.uploadOrMerge();
     };
     this.uploadOrMerge = function () {
@@ -166,16 +191,33 @@ UploadClient.Item = function () {
             this.handleUpload();
         }
     };
+    this.handleCheck = function () {
+        var self = this;
+        $.ajax({
+            type: UploadClient.options.check.method,
+            url: UploadClient.options.check.url,
+            data: $.extend(UploadClient.options.check.hidden, {
+                id: self.data.id
+            }),
+            success: function (result) {
+                if (result.status) {
+                    self.data = $.extend(self.data, result.data);
+                    self.data.chunks = ArrayDifferenceSet(ArrayRange(0, self.data.chunk_number), self.data.chunks);
+                    self.render();
+                }
+            }
+        });
+    };
     this.handleMerge = function () {
         var self = this;
         self.renderMessage(UploadClient.lang[UploadClient.options.lang]['mergeStart'], '');
         $.ajax({
-            type: 'post',
+            type: UploadClient.options.merge.method,
             url: UploadClient.options.merge.url,
-            data: {
+            data: $.extend(UploadClient.options.merge.hidden, {
                 id: self.data.id,
                 hash: self.data.hash
-            },
+            }),
             success: function (result) {
                 if (result.status) {
                     self.renderMessage(UploadClient.lang[UploadClient.options.lang]['mergeSuccess'], 'success');
@@ -206,15 +248,15 @@ UploadClient.Item = function () {
             fileReader.readAsBinaryString(self.file[0].files[0].slice(start, end));
             fileReader.onload = function (e) {
                 $.ajax({
-                    type: 'post',
+                    type: UploadClient.options.upload.method,
                     url: UploadClient.options.upload.url,
-                    data: {
+                    data: $.extend(UploadClient.options.upload.hidden, {
                         id: self.data.id,
-                        chunk_number: number,
+                        current_chunk_number: number,
                         start: start,
                         end: end,
                         data: window.btoa(fileReader.result)
-                    },
+                    }),
                     success: function (result) {
                         if (result.status) {
                             self.renderProcess();
