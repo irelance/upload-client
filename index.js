@@ -5,6 +5,7 @@
     UploadClient.init({
         target: '#client',
         title: 'test',
+        completeStatus: 'complete',
         lang: 'zh_cn',
         display: [
             {
@@ -36,19 +37,7 @@
             {id: 'name', label: '名称', sort: 3},
             {uploader: true, label: '上传文件', sort: 20}
         ],
-        data: [
-            {
-                id: 1,
-                name: '官方sdk.zip',
-                status: 'processing',
-                path: '',
-                hash: '3374d0055e6c4cd087f597a661d3151d',
-                size: 10240,
-                chunk_size: 1024,
-                chunk_number: 4,
-                chunks: [0, 1, 3]
-            }
-        ],
+        data: 'server/getList.php',
         check: {url: 'server/check.php', method: 'post', hidden: {}},
         upload: {
             url: 'server/upload.php',

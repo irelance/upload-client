@@ -65,7 +65,7 @@ UploadClient.modal = {
                 this.creator.init();
                 content.append(this.creator.target);
             } else {
-                content.append('<div class="form-group"><label>' + v.label + '</label><input name="' + v.id + '"></div>');
+                content.append('<div class="form-group"><label>' + v.label + '</label><div><input name="' + v.id + '"></div></div>');
             }
         }.bind(this));
     }

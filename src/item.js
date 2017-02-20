@@ -35,9 +35,11 @@ UploadClient.Item = function () {
         }
         if (self.isValid) {
             self.data = item;
-            self.data.chunks = ArrayDifferenceSet(ArrayRange(0, self.data.chunk_number), self.data.chunks);
             if (!item.chunks) {
                 self.handleCheck();
+            } else {
+                self.data.chunks = ArrayDifferenceSet(ArrayRange(0, self.data.chunk_number), self.data.chunks);
+                self.render();
             }
             self.file.on('change', function (e) {
                 self.onFileStart();
@@ -127,7 +129,11 @@ UploadClient.Item = function () {
         });
         // message
         self.message.on('click', function (e) {
-            self.file.trigger('click');
+            if (UploadClient.options.completeStatus == self.data.status) {
+                self.renderMessage(UploadClient.lang[UploadClient.options.lang]['fileComplete'], 'success');
+            } else {
+                self.file.trigger('click');
+            }
         });
     };
     this.destory = function () {
@@ -163,7 +169,7 @@ UploadClient.Item = function () {
         this.buttons.merge.hide();
         if (this.data.chunks.length) {
             this.buttons.upload.show();
-        } else {
+        } else if (UploadClient.options.completeStatus != this.data.status) {
             this.buttons.merge.show();
         }
     };

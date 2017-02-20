@@ -122,6 +122,11 @@
     cursor: default;
 }
 
+.upload-client .modal-content {
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ccc;
+}
+
 .upload-client .form-group {
     padding-top: 15px;
 }
@@ -130,15 +135,19 @@
     width: 20%;
 }
 
-.upload-client .form-group > input {
-    width: 80%;
+.upload-client .form-group div > input {
+    width: 100%;
+    display: block;
     height: 20px;
-    border: 1px solid #ccc;
+    padding: 6px 12px;
+    border: 0;
     border-radius: 3px;
+    box-shadow: inset 0 0 1px #000;
 }
 
 .upload-client .form-group > div {
     width: 80%;
+    display: inline-block;
 }
 
 .upload-client .modal-footer {

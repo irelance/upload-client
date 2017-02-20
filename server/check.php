@@ -5,8 +5,8 @@ header('Content-Type: application/json');
 $data = $_REQUEST;
 if ($id = _($_REQUEST, 'id')) {
     $data['id'] = time();
-    $data['status'] = 'processing';
-    $data['chunks'] = [];
+    $data['status'] = 'complete';
+    $data['chunks'] = [0,1,2,3];
     echo json_encode(['status' => 1, 'data' => $data]);
 } else {
     $data['id'] = time();

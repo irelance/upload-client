@@ -5,6 +5,7 @@ var UploadClient = {
     target: undefined,
     options: {
         title: '',
+        completeStatus: 'complete',
         lang: 'zh_cn',
         display: [],
         modal: [],

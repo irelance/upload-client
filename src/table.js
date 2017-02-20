@@ -20,8 +20,10 @@ UploadClient.table = {
                 $.ajax({
                     url: UploadClient.options.data,
                     success: function (result) {
-                        UploadClient.options.data = result.data;
-                        UploadClient.table.render();
+                        if (result.status) {
+                            UploadClient.options.data = result.data;
+                            UploadClient.table.render();
+                        }
                     }
                 });
                 break;
@@ -34,7 +36,6 @@ UploadClient.table = {
         UploadClient.options.data.forEach(function (v) {
             var item = new UploadClient.Item();
             item.init(v);
-            item.render();
         });
     }
 };
