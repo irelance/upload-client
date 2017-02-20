@@ -136,13 +136,14 @@
 }
 
 .upload-client .form-group div > input {
-    width: 100%;
     display: block;
-    height: 20px;
+    height: 30px;
     padding: 6px 12px;
     border: 0;
     border-radius: 3px;
     box-shadow: inset 0 0 1px #000;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .upload-client .form-group > div {

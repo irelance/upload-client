@@ -36,6 +36,7 @@ UploadClient.modal = {
                             var item = new UploadClient.Item();
                             self.creator.file.off('change');
                             item.file = self.creator.file;
+                            result.data.chunks = [];
                             item.init(result.data);
                             item.render();
                             item.onHashSuccess();
