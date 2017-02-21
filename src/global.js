@@ -37,7 +37,7 @@ var UploadClient = {
         self.options = $.extend(self.options, options);
         self.target = $(self.options.target);
         self.target.html('<div class="upload-client"><div class="header"><div>' +
-            self.options.title + '</div><div class="pull-right"><button class="create">' +
+            self.options.title + '</div><div class="text-right"><button class="create">' +
             self.lang[self.options.lang].create + '</button>' +
             '</div></div><div class="content"></div></div>');
         self.target.find('.content').html(self.table.target);

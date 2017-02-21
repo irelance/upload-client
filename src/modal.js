@@ -6,7 +6,8 @@ UploadClient.modal = {
     target: $('<div class="modal"><div class="modal-dialog"><div class="modal-header"><div class="close">×</div><h3></h3></div><div class="modal-content"></div><div class="modal-footer"></div></div></div>'),
     creator: undefined,
     init: function (options) {
-        var self = this;
+        var self = this,
+            tbody = UploadClient.table.target.children('tbody');
         self.creator = new UploadClient.Creator();
         self.options = options;
         options.sort(function (a, b) {
@@ -27,6 +28,7 @@ UploadClient.modal = {
                     self.creator.renderMessage(UploadClient.lang[UploadClient.options.lang]['fileStart'], 'error');
                     return false;
                 }
+                delete data.id;
                 $.ajax({
                     type: UploadClient.options.check.method,
                     url: UploadClient.options.check.url,
@@ -41,6 +43,7 @@ UploadClient.modal = {
                             item.render();
                             item.onHashSuccess();
                             item.buttons.upload.trigger('click');
+                            tbody.prepend(item.target);
                         }
                     }
                 });

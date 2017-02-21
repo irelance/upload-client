@@ -38,7 +38,17 @@
             {uploader: true, label: '上传文件', sort: 20}
         ],
         data: 'server/getList.php',
-        check: {url: 'server/check.php', method: 'post', hidden: {}},
+        check: {
+            url: 'server/check.php', method: 'post', hidden: {}, column: [
+                {o: 'id', i: 'id'},
+                {o: 'status', i: 'status'},
+                {o: 'hash', i: 'md5'},
+                {o: 'size', i: 'size'},
+                {o: 'chunk_size', i: 'chunk_size'},
+                {o: 'chunk_number', i: 'chunk_number'},
+                {o: 'chunks', i: 'chunks'}
+            ]
+        },
         upload: {
             url: 'server/upload.php',
             method: 'post',

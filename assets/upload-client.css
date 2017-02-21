@@ -14,7 +14,7 @@
     width: 50%;
 }
 
-.pull-right {
+.text-right {
     text-align: right;
 }
 
@@ -40,20 +40,22 @@
 }
 
 .upload-client .message {
+    float: left;
     text-align: center;
     cursor: default;
     display: inline-block;
-    width: 60%;
+    max-width: 160px;
 }
 
 .upload-client .message p {
     border-radius: 3px;
     height: 20px;
-    padding: 5px 0;
+    padding: 5px 12px;
     margin: 0;
     font-size: 16px;
     background: #f0f0f0;
     box-shadow: inset 0 0 1px #000;
+    box-sizing: content-box;
 }
 
 .upload-client .message p.process, .upload-client button.process {
@@ -72,6 +74,8 @@
 }
 
 .upload-client button {
+    font-size: 14px;
+    line-height: 1;
     margin: 0;
     padding: 6px 12px;
     border-radius: 3px;
@@ -82,7 +86,6 @@
 }
 
 .upload-client .modal {
-    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -129,9 +132,11 @@
 
 .upload-client .form-group {
     padding-top: 15px;
+    margin: 0;
 }
 
 .upload-client .form-group > label {
+    display: inline;
     width: 20%;
 }
 
@@ -149,6 +154,8 @@
 .upload-client .form-group > div {
     width: 80%;
     display: inline-block;
+    float: none;
+    max-width: none;
 }
 
 .upload-client .modal-footer {

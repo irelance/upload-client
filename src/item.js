@@ -21,26 +21,16 @@ UploadClient.Item = function () {
     this.init = function (item) {
         var self = this;
         self.hash = new UploadClient.HashAdapter(UploadClient.options.hash.adapters[UploadClient.options.hash.defaults]);
-        if (typeof item == 'object') {
-            var includes = ['id', 'status', 'hash', 'size', 'chunk_size', 'chunk_number'];
-            self.isValid = true;
-            includes.forEach(function (v) {
-                if (typeof item[v] == 'string' && item[v].match(/^[0-9]+$/)) {
-                    item[v] = parseInt(item[v]);
-                }
-                if (item[v] == undefined) {
-                    self.isValid = false;
-                }
-            });
-        }
-        if (self.isValid) {
-            self.data = item;
-            if (!item.chunks) {
-                self.handleCheck();
-            } else {
-                self.data.chunks = ArrayDifferenceSet(ArrayRange(0, self.data.chunk_number), self.data.chunks);
-                self.render();
+        self.clearData(item);
+        var includes = ['id', 'status', 'hash', 'size', 'chunk_size', 'chunk_number'];
+        self.isValid = true;
+        includes.forEach(function (v) {
+            if (self.data[v] == undefined) {
+                self.isValid = false;
             }
+        });
+        if (self.isValid) {
+            self.render();
             self.file.on('change', function (e) {
                 self.onFileStart();
                 var file = this.files[0];
@@ -77,6 +67,24 @@ UploadClient.Item = function () {
             });
         }
     };
+    this.clearData = function (data) {
+        if (typeof data == 'object') {
+            this.data = $.extend(this.data, data);
+            for (var i in data) {
+                if (typeof data[i] == 'string' && data[i].match(/^[0-9]+$/)) {
+                    this.data[i] = parseInt(data[i]);
+                }
+            }
+            if (UploadClient.options.completeStatus == this.data.status) {
+                this.data.chunks = [];
+            } else if (this.data.chunks) {
+                this.data.chunks = ArrayDifferenceSet(ArrayRange(0, this.data.chunk_number), this.data.chunks);
+            } else {
+                this.data.chunks = undefined;
+                this.handleCheck();
+            }
+        }
+    };
     this.render = function () {
         this.target.html('');
         this.uploader.html('');
@@ -92,7 +100,6 @@ UploadClient.Item = function () {
                 }
                 this.target.append(td);
             }.bind(this));
-            UploadClient.table.target.children('tbody').append(this.target);
             this.renderButtons();
             this.onFileStart();
             this.uploader.prepend(this.message);
@@ -167,9 +174,12 @@ UploadClient.Item = function () {
     this.uploadOrMerge = function () {
         this.buttons.upload.hide();
         this.buttons.merge.hide();
-        if (this.data.chunks.length) {
+        if (this.data.status == UploadClient.options.completeStatus) {
+            return false;
+        }
+        if (this.data.chunks && this.data.chunks.length) {
             this.buttons.upload.show();
-        } else if (UploadClient.options.completeStatus != this.data.status) {
+        } else {
             this.buttons.merge.show();
         }
     };
@@ -192,6 +202,7 @@ UploadClient.Item = function () {
     this.onUpload = function () {
         this.buttons.pause.show();
         this.buttons.upload.hide();
+        this.retries = UploadClient.options.upload.retries;
         this.isProcess = UploadClient.options.upload.workers;
         for (var w = 0; w < UploadClient.options.upload.workers; w++) {
             this.handleUpload();
@@ -206,9 +217,8 @@ UploadClient.Item = function () {
                 id: self.data.id
             }),
             success: function (result) {
-                if (result.status) {
-                    self.data = $.extend(self.data, result.data);
-                    self.data.chunks = ArrayDifferenceSet(ArrayRange(0, self.data.chunk_number), self.data.chunks);
+                if (result.status && result.data.chunks) {
+                    self.clearData(result.data);
                     self.render();
                 }
             }
@@ -227,8 +237,12 @@ UploadClient.Item = function () {
             success: function (result) {
                 if (result.status) {
                     self.renderMessage(UploadClient.lang[UploadClient.options.lang]['mergeSuccess'], 'success');
+                    self.data.status = UploadClient.options.completeStatus;
+                    self.render();
                 } else {
                     self.renderMessage(UploadClient.lang[UploadClient.options.lang]['mergeFail'], 'error');
+                    self.buttons.pause.hide();
+                    self.buttons.merge.show();
                 }
             }
         }).always(function () {
@@ -241,6 +255,8 @@ UploadClient.Item = function () {
         var self = this;
         if (self.retries <= 0) {
             self.renderMessage(UploadClient.lang[UploadClient.options.lang]['networkError'], 'error');
+            self.buttons.pause.hide();
+            self.buttons.upload.show();
             return self.isProcess--;
         }
         var number = parseInt(self.data.chunks.pop());

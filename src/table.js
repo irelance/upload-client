@@ -33,9 +33,11 @@ UploadClient.table = {
         }
     },
     render: function () {
+        var tbody = this.target.children('tbody');
         UploadClient.options.data.forEach(function (v) {
             var item = new UploadClient.Item();
             item.init(v);
+            tbody.append(item.target);
         });
     }
 };
